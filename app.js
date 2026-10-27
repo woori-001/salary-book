@@ -367,7 +367,7 @@
     $('skins').innerHTML = '<div class="skg">' + ids.map((id) => {
       const k = SK[id];
       return '<button class="skin' + (prefs.skin === id ? ' on' : '') + '" type="button" data-skin="' + id + '" aria-pressed="' + (prefs.skin === id) + '" style="--sc:' + k.a1 + '">' +
-        (k.bunny ? '<span class="sw swDraw' + (k.deco || k.glassSeason ? ' swDeco' : '') + (k.deco === 'forest' ? ' swWide' : '') + '" style="background:' + (k.season || k.deco ? k.b[0] : '') + '"><img src="' + k.bunny + '" alt=""></span>'
+        (k.bunny ? '<span class="sw swDraw' + (k.deco || k.glassSeason ? ' swDeco' : '') + '" style="background:' + (k.season || k.deco ? k.b[0] : '') + '"><img src="' + k.bunny + '" alt=""></span>'
           : '<span class="sw" style="background:linear-gradient(135deg,' + k.b[0] + ',' + k.b[2] + ')"><b style="background:linear-gradient(135deg,' + k.a1 + ',' + k.a2 + ')"></b></span>') +
         '<span class="sn">' + esc(k.name) + '</span></button>';
     }).join('') + '</div>';

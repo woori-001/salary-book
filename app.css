@@ -217,7 +217,6 @@ body.viewMode .editOnly { display: none !important; }
 .skin .swDraw { background: #FBFAF5; box-shadow: inset 0 0 0 2px #161616; display: grid; place-items: center; }
 .skin .swDeco { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
 .skin .swDraw img { width: 36px; height: auto; }
-.skin .swDraw.swWide img { width: 62px; max-width: none; }
 .skin:active .sw { transform: scale(.92); }
 .skin.on .sw { box-shadow: 0 0 0 2px rgb(var(--glass)), 0 0 0 4px var(--sc); }
 .skin .sn { font-size: 11px; line-height: 1.25; color: var(--sub); text-align: center; word-break: keep-all; max-width: 100%; }
