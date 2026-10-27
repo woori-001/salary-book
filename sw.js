@@ -1,6 +1,6 @@
 // 월급관리대장: 인터넷이 없어도 화면이 열리도록 앱 파일만 저장 (돈 내역은 저장하지 않음)
-const CACHE = 'salary-v2';
-const FILES = ['./', 'index.html', 'app.css', 'app.js', 'manifest.webmanifest', 'bunny.png', 'icons/icon-192.png'];
+const CACHE = 'salary-v3';
+const FILES = ['./', 'index.html', 'app.css', 'app.js', 'common.js', 'install-early.js', 'manifest.webmanifest', 'bunny.png', 'icons/icon-192.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', (e) => {

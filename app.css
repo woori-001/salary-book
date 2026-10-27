@@ -11,7 +11,7 @@
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; min-height: 100%; }
-body { font-family: var(--ui); color: var(--ink); background: #EEEBFB; -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
+body { font-family: var(--ui); color: var(--ink); background: var(--base, #EEEBFB); -webkit-font-smoothing: antialiased; overscroll-behavior-y: none; }
 button { font-family: inherit; color: inherit; cursor: pointer; }
 input, textarea { font-family: inherit; color: inherit; font-size: 16px; }
 [hidden] { display: none !important; }
@@ -19,15 +19,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 
 .bg { position: fixed; inset: 0; overflow: hidden; z-index: -1; pointer-events: none; }
 .bg i { position: absolute; border-radius: 50%; filter: blur(46px); opacity: .8; }
-.bg .b0 { width: 70vw; height: 70vw; left: -24vw; top: -18vw; background: #FFD3E2; }
-.bg .b1 { width: 70vw; height: 70vw; right: -28vw; top: 36vh; background: #D4CCFF; }
-.bg .b2 { width: 80vw; height: 60vw; left: 6vw; bottom: -30vw; background: #CBF0E0; }
+.bg .b0 { width: 70vw; height: 70vw; left: -24vw; top: -18vw; background: var(--b0, #FFD3E2); }
+.bg .b1 { width: 70vw; height: 70vw; right: -28vw; top: 36vh; background: var(--b1, #D4CCFF); }
+.bg .b2 { width: 80vw; height: 60vw; left: 6vw; bottom: -30vw; background: var(--b2, #CBF0E0); }
 
 /* 로그인 */
 .auth { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px 16px calc(24px + var(--safe-b)); }
 .authCard { width: 100%; max-width: 380px; background: rgba(var(--glass), .62); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 28px; padding: 28px 22px 22px; box-shadow: 0 16px 40px rgba(70, 60, 150, .12); text-align: center; }
 .authBunWrap { display: block; width: 104px; margin: 0 auto 4px; }
-.authBun { display: block; transform-origin: 50% 100%; animation: boingIdle 3.2s infinite; }
+.authBun { display: block; width: 104px; height: 104px; object-fit: contain; transform-origin: 50% 100%; animation: boingIdle 3.2s infinite; }
 .authCard h1 { font-family: var(--cute); font-size: 24px; margin: 4px 0 6px; color: var(--a1); }
 .sub { font-size: 13px; color: var(--sub); line-height: 1.6; margin: 0 0 18px; }
 .form { display: flex; flex-direction: column; gap: 12px; text-align: left; }
@@ -35,7 +35,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .form input, .sheetCard input:not([type=checkbox]) { height: 48px; border: 1px solid rgba(110, 110, 170, .16); border-radius: 14px; padding: 0 14px; background: rgba(var(--glass), .92); outline: none; width: 100%; }
 .form input:focus, .sheetCard input:focus { border-color: var(--a1); }
 .msg { min-height: 18px; margin: 0; font-size: 13px; color: var(--minus); text-align: center; }
-.primary { height: 48px; border: none; border-radius: 15px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; padding: 0 18px; box-shadow: 0 8px 18px var(--glow); transition: transform .2s var(--spring); }
+.primary { height: 48px; border: none; border-radius: 15px; background: var(--accent); color: var(--on, #fff); font-size: 15px; font-weight: 700; padding: 0 18px; box-shadow: 0 8px 18px var(--glow); transition: transform .2s var(--spring); }
 .primary:active { transform: scale(.96); }
 .primary:disabled { opacity: .6; }
 .ghost { height: 44px; border: none; border-radius: 14px; background: rgba(var(--glass), .8); font-size: 14px; font-weight: 600; padding: 0 16px; color: var(--ink); }
@@ -46,7 +46,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .brand { display: flex; align-items: flex-end; gap: 4px; flex: 1; border: none; background: transparent; padding: 0; text-align: left; }
 .logoBun { display: block; width: 40px; height: 40px; }
-.logoBun img { display: block; transform-origin: 50% 100%; animation: boingIdle 4.5s 1s infinite; }
+.logoBun img { display: block; width: 40px; height: 40px; object-fit: contain; transform-origin: 50% 100%; animation: boingIdle 4.5s 1s infinite; }
 .brand.boing .logoBun img { animation: boing .7s; }
 .logoTxt { font-family: var(--cute); font-size: 21px; font-weight: 400; letter-spacing: -.5px; padding-bottom: 3px;
   background: linear-gradient(120deg, #F08AAE, #9A7BEA 55%, #6A6FE0); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -69,10 +69,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 }
 .sum { position: relative; }
 .sumBun { position: absolute; right: 12px; top: -26px; width: 58px; height: 58px; pointer-events: none; }
-.sumBun img { display: block; transform-origin: 50% 100%; filter: drop-shadow(0 4px 6px rgba(80, 70, 160, .16)); }
+.sumBun img { display: block; width: 58px; height: 58px; object-fit: contain; transform-origin: 50% 100%; filter: drop-shadow(0 4px 6px rgba(80, 70, 160, .16)); }
 .sumBun.boing img { animation: boing .7s; }
 .sumBun.big img { animation: boing .7s 3; }
-.bubble { position: absolute; right: 50px; top: -6px; white-space: nowrap; font-family: var(--cute); font-size: 13px; color: var(--ink); background: #fff;
+.bubble { position: absolute; right: 50px; top: -6px; white-space: nowrap; font-family: var(--cute); font-size: 13px; color: var(--ink); background: rgb(var(--glass));
   border-radius: 14px 14px 4px 14px; padding: 6px 10px; box-shadow: 0 6px 14px rgba(80, 70, 160, .14); opacity: 0; transform: translateY(6px) scale(.8); transform-origin: 100% 100%;
   transition: opacity .25s ease, transform .35s var(--spring); }
 .bubble.show { opacity: 1; transform: none; }
@@ -123,7 +123,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px
 .tag.day { color: var(--sub); background: rgba(110, 110, 170, .1); }
 .amt { font-size: 15px; flex: none; }
 .amt.plus { color: var(--plus); }
-.cb { width: 26px; height: 26px; flex: none; border-radius: 9px; border: 2px solid rgba(110, 110, 170, .4); background: #fff; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform .2s var(--spring), background .2s ease; }
+.cb { width: 26px; height: 26px; flex: none; border-radius: 9px; border: 2px solid rgba(110, 110, 170, .4); background: rgb(var(--glass)); padding: 0; display: flex; align-items: center; justify-content: center; transition: transform .2s var(--spring), background .2s ease; }
 .cb:active { transform: scale(.85); }
 .row.paid .cb { background: var(--plus); border-color: var(--plus); }
 .row.paid { background: rgba(var(--glass), .55); }
@@ -139,14 +139,14 @@ body.viewMode .cb { pointer-events: none; }
 /* 시트 */
 .sheet { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
 .sheetBg { position: absolute; inset: 0; background: rgba(40, 36, 80, .28); animation: fade .25s ease; }
-.sheetCard { position: relative; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; background: #FBFAFF; border-radius: 26px 26px 0 0; padding: 16px 18px calc(18px + var(--safe-b)); display: flex; flex-direction: column; gap: 14px; animation: up .35s var(--ease); }
+.sheetCard { position: relative; width: 100%; max-width: 560px; max-height: 92dvh; overflow: auto; background: var(--base, #FBFAFF); border-radius: 26px 26px 0 0; padding: 16px 18px calc(18px + var(--safe-b)); display: flex; flex-direction: column; gap: 14px; animation: up .35s var(--ease); }
 @keyframes up { from { transform: translateY(40px); opacity: 0; } }
 @keyframes fade { from { opacity: 0; } }
 .sheetH { display: flex; align-items: center; justify-content: space-between; }
 .sheetH h3 { margin: 0; font-size: 18px; }
 .cats { display: flex; flex-wrap: wrap; gap: 6px; }
 .cat { border: none; height: 36px; border-radius: 12px; padding: 0 11px; font-size: 13px; font-weight: 600; background: rgba(110, 110, 170, .08); }
-.cat.on { background: var(--accent); color: #fff; box-shadow: 0 4px 10px var(--glow); }
+.cat.on { background: var(--accent); color: var(--on, #fff); box-shadow: 0 4px 10px var(--glow); }
 .won { position: relative; }
 .won span { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--sub); font-weight: 600; }
 .won input { padding-right: 36px !important; font-size: 18px !important; font-weight: 700; color: var(--ink); }
@@ -156,6 +156,7 @@ body.viewMode .cb { pointer-events: none; }
 .tgl small { color: var(--sub); font-weight: 500; font-size: 12px; }
 .sheetBtns { display: flex; gap: 8px; }
 .sheetBtns .primary { flex: 1; }
+.mSec.first { border-top: none; padding-top: 0; }
 .mSec { border-top: 1px solid rgba(110, 110, 170, .12); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
 .mSec h4 { margin: 0; font-size: 15px; }
 .small { font-size: 12.5px; color: var(--sub); line-height: 1.6; margin: 0; }
@@ -167,3 +168,150 @@ body.viewMode .cb { pointer-events: none; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + var(--safe-b)); transform: translate(-50%, 20px); background: rgba(46, 49, 80, .92); color: #fff; font-size: 14px; padding: 11px 16px; border-radius: 14px; opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .3s var(--ease); z-index: 40; max-width: calc(100% - 32px); text-align: center; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ───────── 앱 설치 (말랑메모와 같은 방식) ───────── */
+.install { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 18px; background: rgba(var(--glass), .7); margin-bottom: 14px; animation: fade .4s var(--ease); }
+.install img { width: 40px; height: 40px; border-radius: 11px; flex: none; }
+.install .it { flex: 1; min-width: 0; font-size: 13px; line-height: 1.5; color: var(--sub); }
+.install .it b { display: block; color: var(--ink); font-size: 14px; }
+.install .go { height: 38px; border: none; border-radius: 12px; padding: 0 14px; background: var(--accent); color: var(--on); font-size: 14px; font-weight: 700; flex: none; }
+.install .x { width: 32px; height: 32px; border: none; background: transparent; color: var(--sub); border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0; }
+.howto { counter-reset: s; display: flex; flex-direction: column; gap: 10px; text-align: left; margin-top: 12px; }
+.howto div { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.howto div::before { counter-increment: s; content: counter(s); width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--on); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; margin-top: 1px; }
+.shareIco { display: inline-flex; vertical-align: -4px; color: var(--a1); }
+.primaryWide { width: 100%; margin-top: 10px; }
+
+.install .go:disabled { opacity: .7; }
+/* 아이폰: 공유 버튼을 가리키는 말풍선 */
+.iosTip {
+  position: fixed; left: 50%; bottom: calc(18px + var(--safe-b)); transform: translateX(-50%); z-index: 60;
+  width: min(360px, calc(100% - 24px)); display: flex; align-items: center; gap: 12px;
+  padding: 14px 40px 14px 14px; border-radius: 20px; background: rgb(var(--glass));
+  box-shadow: 0 16px 40px rgba(40, 40, 90, .28); animation: tipIn .45s var(--spring);
+}
+.iosTip img { border-radius: 12px; flex: none; }
+.iosTxt { font-size: 12px; line-height: 1.5; color: var(--sub); }
+.iosTxt b { display: block; font-size: 14px; color: var(--ink); }
+.iosX { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border: none; border-radius: 9px; background: transparent; color: var(--sub); display: flex; align-items: center; justify-content: center; padding: 0; }
+.iosArrow { position: absolute; left: 50%; bottom: -9px; width: 18px; height: 18px; background: rgb(var(--glass)); transform: translateX(-50%) rotate(45deg); border-radius: 3px; }
+.iosTip { animation: tipIn .45s var(--spring), bob 1.6s ease-in-out .5s infinite; }
+@keyframes tipIn { from { opacity: 0; transform: translate(-50%, 20px); } }
+@keyframes bob { 50% { transform: translate(-50%, 6px); } }
+
+.h2row { display: flex; justify-content: space-between; align-items: center; }
+.sval { font-size: 13px; font-weight: 500; color: var(--sub); }
+.fsRow { display: flex; align-items: center; gap: 10px; }
+.fsRow input { flex: 1; accent-color: var(--a1); }
+
+@keyframes tipIn { from { opacity: 0; transform: translate(-50%, 20px) scale(.9); } }
+.install .x { font-size: 14px; }
+body.viewMode #menuBtn { display: flex !important; }
+body.viewMode .editOnly { display: none !important; }
+
+/* ───────── 스킨 고르기 (말랑메모와 같은 아이콘 배열) ───────── */
+.skg { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 4px; }
+.skin { border: none; background: transparent; padding: 2px 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.skin .sw { width: 46px; height: 46px; border-radius: 15px; position: relative; display: block; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); transition: transform .25s var(--spring), box-shadow .25s ease; }
+.skin .sw b { position: absolute; right: 7px; bottom: 7px; width: 13px; height: 13px; border-radius: 50%; }
+.skin .swDraw { background: #FBFAF5; box-shadow: inset 0 0 0 2px #161616; display: grid; place-items: center; }
+.skin .swDeco { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
+.skin .swDraw img { width: 36px; height: auto; }
+.skin .swDraw.swWide img { width: 62px; max-width: none; }
+.skin:active .sw { transform: scale(.92); }
+.skin.on .sw { box-shadow: 0 0 0 2px rgb(var(--glass)), 0 0 0 4px var(--sc); }
+.skin .sn { font-size: 11px; line-height: 1.25; color: var(--sub); text-align: center; word-break: keep-all; max-width: 100%; }
+.skin.on .sn { color: var(--ink); font-weight: 700; }
+
+/* ───────── 어두운 스킨 ───────── */
+html.dark .bg i { opacity: .55; }
+html.dark .toast { background: rgba(240, 242, 250, .92); color: #1B1F2A; }
+html.dark .sheetBg { background: rgba(0, 0, 0, .45); }
+html.dark .carry { background: rgba(255, 220, 130, .16); color: #F2DFA6; }
+html.dark { --plus: #5FD3A4; --minus: #FF8BA4; }
+html.dark .logoTxt { background-image: linear-gradient(120deg, #F7A9C6, #B9A2F5 55%, #9EA6FF); }
+
+/* ───────── 종이 스킨 ───────── */
+html.paper .bg { display: none; }
+html.paper { --paper-line: color-mix(in srgb, var(--ink) 13%, transparent); }
+html.paper .sum, html.paper .box, html.paper .row, html.paper .iconBtn, html.paper .install, html.paper .viewBanner, html.paper .memo, html.paper .addBtn,
+html.paper .sumRow > div { background: #fff; box-shadow: 0 0 0 1px var(--paper-line); }
+html.paper .sum { box-shadow: 0 0 0 1px var(--paper-line), 0 4px 14px rgba(30, 40, 80, .06); }
+html.paper .row.paid { background: color-mix(in srgb, var(--ink) 4%, #fff); }
+html.paper .logoTxt { background: none; color: var(--a1); }
+
+/* ───────── 말랑 드로잉: 아이보리 종이 + 검은 펜 ───────── */
+html.draw body { background: #EFEFEC; }
+html.draw .sum, html.draw .box, html.draw .row, html.draw .iconBtn, html.draw .install, html.draw .viewBanner, html.draw .memo, html.draw .addBtn,
+html.draw .sumRow > div { background: #FBFAF5; box-shadow: inset 0 0 0 2px #161616; }
+html.draw .sumMain b, html.draw .logoTxt { color: #161616; }
+html.draw .bar { background: #E2E1DB; box-shadow: inset 0 0 0 1.6px #161616; }
+html.draw .bar i { background: #161616; }
+html.draw .cb { border-color: #161616; }
+html.draw .row.paid .cb { background: #161616; border-color: #161616; }
+html.draw .tag { color: #161616; background: transparent; box-shadow: inset 0 0 0 1.4px #161616; }
+
+/* ───────── /* ───────── 디자인 스킨 장식 (PC와 같은 그림) — 배경 위에 한 겹 ───────── */
+.bg::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+html.g-forest .bg::after {
+  background-image: url(leaf-top.svg), url(leaf-bot.svg),
+    linear-gradient(180deg, rgba(47, 120, 88, .22), rgba(47, 120, 88, .06) 38%, rgba(47, 120, 88, .04) 62%, rgba(47, 120, 88, .20)), url(wood-white.svg);
+  background-position: right -34px top -30px, left -26px bottom 70px, 0 0, 0 0;
+  background-size: 170px auto, 170px auto, 100% 100%, 168px auto;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+}
+html.g-peach .bg::after {
+  background-image: url(peach-fruit.png), url(blossom-white.png), url(blossom-pink.png), url(peach-fruit.png), url(blossom-white.png), url(blossom-pink.png), url(sakura-petals.svg),
+    linear-gradient(180deg, rgba(250, 176, 160, .32), rgba(250, 186, 176, .06) 38%, rgba(236, 246, 226, .08) 64%, rgba(200, 232, 196, .24));
+  background-position: right -14px top 60px, right 54px top 34px, right 14px top 50%, left -14px bottom 140px, left 52px bottom 122px, left 30px bottom 172px, 0 0, 0 0;
+  background-size: 74px auto, 36px auto, 22px auto, 60px auto, 32px auto, 22px auto, 170px auto, 100% 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+}
+html.g-lemon .bg::after {
+  background-image: url(lemon-slice.png), url(daisy-white.png), url(daisy-white.png), url(lemon-slice.png), url(daisy-white.png), url(soda-bubbles.svg),
+    linear-gradient(180deg, rgba(255, 220, 90, .30), rgba(255, 230, 120, .06) 38%, rgba(220, 240, 160, .06) 64%, rgba(200, 232, 140, .22));
+  background-position: right -18px top 60px, right 50px top 34px, left 44px bottom 124px, left -20px bottom 144px, right 16px top 50%, 0 0, 0 0;
+  background-size: 70px auto, 38px auto, 34px auto, 62px auto, 24px auto, 160px auto, 100% 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+}
+html.g-sky .bg::after {
+  background-image: url(sky-cloud.svg), url(sky-cloud.svg), url(sky-cloud.svg), url(sky-wave.svg), url(sky-wave.svg),
+    linear-gradient(180deg, rgba(150, 205, 250, .30), rgba(190, 225, 252, .06) 34%, rgba(170, 215, 245, .08) 70%, rgba(110, 180, 235, .34));
+  background-position: right -20px top 64px, right 70px top 36px, left -26px top 46%, 0 calc(100% - 100px), 22px calc(100% - 82px), 0 0;
+  background-size: 92px auto, 54px auto, 70px auto, 80px 16px, 80px 16px, 100% 100%;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat-x, repeat-x, no-repeat;
+}
+html.g-aurora .bg::after {
+  background-image: url(aur-spark-gold.png), url(aur-spark-purple.png), url(aur-pearl.png), url(aur-spark-iris.png), url(aur-pearl-gold.png), url(aur-pearl-iris.png),
+    url(aurora-bands.svg),
+    radial-gradient(100% 35% at 85% 0%, rgba(140, 150, 255, .18), transparent 65%),
+    radial-gradient(110% 40% at 15% 100%, rgba(170, 140, 255, .20), transparent 60%),
+    linear-gradient(180deg, rgba(226, 228, 252, .5) 0, rgba(184, 190, 242, .45) 45%, rgba(128, 138, 216, .5) 80%, rgba(106, 114, 198, .55) 100%);
+  background-position: left 168px top 22px, right 40px top 84px, left -10px top 46%, right -8px bottom 190px, left 26px bottom 150px, right 70px bottom 110px, 0 0, 0 0, 0 0, 0 0;
+  background-size: 22px auto, 14px auto, 26px auto, 30px auto, 14px auto, 12px auto, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+}
+/* 오로라: 로고 옆 무지개 반짝이가 둥실 */
+html.g-aurora .bg::before {
+  content: ""; position: absolute; z-index: 1; right: 76px; top: calc(16px + var(--safe-t)); width: 30px; height: 35px;
+  background: url(aur-spark-iris.png) center / contain no-repeat; animation: starFloat 5s ease-in-out infinite;
+}
+@keyframes starFloat { 0%, 100% { transform: translateY(0) rotate(-10deg) scale(.95); opacity: .85; } 50% { transform: translateY(-6px) rotate(8deg) scale(1.05); opacity: 1; } }
+/* 스카이: 메모 화면에서만 배 타는 말랑이 (목록이 배 뒤로 지나감) */
+html.g-sky body:has(#app:not([hidden]))::after {
+  content: ""; position: fixed; z-index: 4; pointer-events: none; left: 14px; bottom: calc(80px + var(--safe-b)); width: 130px; height: 81px;
+  background: url(sky-boat.png) center / contain no-repeat; transform-origin: 50% 90%; animation: boatBob 4.2s ease-in-out infinite, boatSail 14s ease-in-out infinite; will-change: transform, rotate, translate; backface-visibility: hidden;
+}
+@keyframes boatBob { 0%, 100% { rotate: -2deg; transform: translateY(0); } 50% { rotate: 2deg; transform: translateY(-3px); } }
+@keyframes boatSail { 0%, 100% { translate: 0 0; } 50% { translate: 22px 0; } }
+html.g-sky .app { padding-bottom: 120px; }
+@media (prefers-reduced-motion: reduce) { html.g-aurora .bg::before, html.g-sky body::after { animation: none; } }
+
+/* 디자인 스킨: 카드는 맑은 흰 유리로 */
+html.g-forest .sum, html.g-peach .sum, html.g-lemon .sum, html.g-sky .sum, html.g-aurora .sum,
+html.g-forest .box, html.g-peach .box, html.g-lemon .box, html.g-sky .box, html.g-aurora .box { background: rgba(255, 255, 255, .72); }
+html.g-lemon .sumMain b { color: #B8860B; }
+html.g-forest .logoTxt { background-image: linear-gradient(120deg, #6FB58E, #2F7858); }
+html.g-peach .logoTxt { background-image: linear-gradient(120deg, #F59A8C, #E0607E); }
+html.g-lemon .logoTxt { background-image: linear-gradient(120deg, #F2C21B, #E0961A); }
+html.g-sky .logoTxt { background-image: linear-gradient(120deg, #7CC4F4, #2E7FD6); }

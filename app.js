@@ -269,7 +269,7 @@
   $('mLabel').onclick = () => { ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0'); openMonth(); render(); };
 
   // ───────── 설정 ─────────
-  $('menuBtn').onclick = () => { $('menu').hidden = false; renderShare(); };
+  $('menuBtn').onclick = () => { $('menu').hidden = false; renderSkins(); renderInstall(); if (mode === 'edit') renderShare(); };
   const linkOf = (t) => location.origin + location.pathname + '?v=' + t;
   async function renderShare() {
     const box = $('shareBox'); box.innerHTML = '<p class="small">불러오는 중…</p>';
@@ -346,6 +346,108 @@
     $('who').textContent = '';
     openMonth(); render(); loadView();
   }
+
+
+  // ───────── 스킨 (말랑메모와 같은 스킨) ─────────
+  const LS_PREFS = 'ledger.prefs.v1';
+  const prefs = load(LS_PREFS, { skin: 'lav', installHide: false });
+  const savePrefs = () => save(LS_PREFS, prefs);
+  const M = window.M;
+  function applySkin() {
+    const t = M.applyTheme({ skin: prefs.skin });
+    const sk = t.sk, r = document.documentElement.style;
+    r.setProperty('--base', sk.base);
+    r.setProperty('--b0', sk.b[0]); r.setProperty('--b1', sk.b[1]); r.setProperty('--b2', sk.b[2]);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', sk.base);
+  }
+  function renderSkins() {
+    const SK = M.SKINS;
+    const ORDER = ['lav', 'pink', 'cotton', 'blue', 'midnight', 'peach', 'forest', 'honey', 'sky', 'aurora', 'office', 'sage', 'berry', 'draw'];
+    const ids = ORDER.concat(Object.keys(SK).filter((id) => !ORDER.includes(id) && !SK[id].season)).filter((id) => SK[id]);
+    $('skins').innerHTML = '<div class="skg">' + ids.map((id) => {
+      const k = SK[id];
+      return '<button class="skin' + (prefs.skin === id ? ' on' : '') + '" type="button" data-skin="' + id + '" aria-pressed="' + (prefs.skin === id) + '" style="--sc:' + k.a1 + '">' +
+        (k.bunny ? '<span class="sw swDraw' + (k.deco || k.glassSeason ? ' swDeco' : '') + (k.deco === 'forest' ? ' swWide' : '') + '" style="background:' + (k.season || k.deco ? k.b[0] : '') + '"><img src="' + k.bunny + '" alt=""></span>'
+          : '<span class="sw" style="background:linear-gradient(135deg,' + k.b[0] + ',' + k.b[2] + ')"><b style="background:linear-gradient(135deg,' + k.a1 + ',' + k.a2 + ')"></b></span>') +
+        '<span class="sn">' + esc(k.name) + '</span></button>';
+    }).join('') + '</div>';
+  }
+  $('skins').onclick = (e) => {
+    const b = e.target.closest('[data-skin]'); if (!b) return;
+    prefs.skin = b.dataset.skin; savePrefs(); applySkin(); renderSkins();
+    hop($('logo'));
+  };
+  applySkin();
+
+  // ───────── 앱으로 설치 (말랑메모와 같은 방식) ─────────
+  const ua = navigator.userAgent;
+  const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /android/i.test(ua);
+  const inApp = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|; wv\)/i.test(ua);
+  const isKakao = /KAKAOTALK/i.test(ua);
+  const iosNotSafari = isIOS && /CriOS|FxiOS|EdgiOS|Whale|NAVER/i.test(ua);
+  const standalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let installed = false, installBusy = false;
+  const evt = () => window.__installEvt;
+  window.addEventListener('mallang-installable', renderInstall);
+  window.addEventListener('appinstalled', () => { window.__installEvt = null; installed = true; renderInstall(); toast('설치했어요! 홈 화면의 말랑이 아이콘으로 열어 보세요'); });
+  function installMode() {
+    if (standalone()) return 'none';
+    if (inApp) return 'external';
+    if (evt()) return 'prompt';
+    if (installed) return 'installed';
+    if (isIOS) return iosNotSafari ? 'external' : 'ios';
+    if (isAndroid) return 'wait';
+    return 'none';
+  }
+  function renderInstall() {
+    const mode = installMode();
+    $('install').hidden = !(mode !== 'none' && mode !== 'installed' && !prefs.installHide);
+    $('installSub').textContent = { prompt: '누르면 바로 설치돼요', wait: '누르면 바로 설치돼요', ios: '홈 화면에 아이콘을 만들어요', external: isIOS ? '사파리에서 설치해요' : '크롬에서 바로 설치' }[mode] || '';
+    $('installGo').textContent = installBusy ? '준비 중…' : (mode === 'external' ? (isIOS ? '사파리로' : '크롬으로') : '설치');
+    $('installGo').disabled = installBusy;
+    $('installSec').hidden = mode === 'none' && !installed;
+    $('installSet').textContent = installed || mode === 'installed' ? '이미 설치돼 있어요' : '설치하기';
+    $('installSet').disabled = installed || mode === 'installed';
+  }
+  function openExternal() {
+    const url = location.href.split('#')[0];
+    if (isKakao) { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(url); return; }
+    if (isAndroid) { location.href = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end'; return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('주소를 복사했어요. 사파리에 붙여넣어 열어 주세요')).catch(() => toast('사파리에서 ' + url + ' 을 열어 주세요'));
+    else toast('사파리에서 ' + url + ' 을 열어 주세요');
+  }
+  async function runPrompt() {
+    const e = evt(); window.__installEvt = null; e.prompt();
+    let choice = null; try { choice = await e.userChoice; } catch (err) { /* 무시 */ }
+    if (choice && choice.outcome === 'accepted') installed = true;
+    renderInstall();
+  }
+  async function doInstall() {
+    const mode = installMode();
+    if (mode === 'prompt') return runPrompt();
+    if (mode === 'external') return openExternal();
+    if (mode === 'ios') { closeSheets(); $('iosTip').hidden = false; return; }
+    if (mode === 'installed') { toast('이미 설치돼 있어요. 홈 화면의 말랑이 아이콘으로 열어 주세요'); return; }
+    if (mode === 'wait') {
+      installBusy = true; renderInstall();
+      const ok = await new Promise((res) => {
+        if (evt()) return res(true);
+        const t = setTimeout(() => { window.removeEventListener('mallang-installable', on); res(false); }, 5000);
+        function on() { clearTimeout(t); res(true); }
+        window.addEventListener('mallang-installable', on, { once: true });
+      });
+      installBusy = false;
+      if (ok) return runPrompt();
+      renderInstall();
+      toast(installed ? '이미 설치돼 있어요' : '크롬 오른쪽 위 ⋮ 메뉴에서 "앱 설치"를 눌러 주세요');
+    }
+  }
+  $('installGo').onclick = doInstall;
+  $('installSet').onclick = doInstall;
+  $('installX').onclick = () => { prefs.installHide = true; savePrefs(); renderInstall(); toast('설정(☰)에서 언제든 설치할 수 있어요'); };
+  $('iosTipX').onclick = () => { $('iosTip').hidden = true; };
+  renderInstall();
 
   // ───────── 시작 ─────────
   const q = new URLSearchParams(location.search).get('v');
