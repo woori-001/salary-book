@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EEEBFB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="월급관리대장">
+<title>월급관리대장</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Gowun+Dodum&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><i class="b0"></i><i class="b1"></i><i class="b2"></i></div>
+
+<!-- 로그인 -->
+<main id="auth" class="auth" hidden>
+  <div class="authCard">
+    <img src="bunny.png" alt="" width="96" height="96" class="authBun">
+    <h1>월급관리대장</h1>
+    <p class="sub">말랑메모 아이디로 로그인해요.<br>기록은 말랑메모와 따로 저장돼요.</p>
+    <form id="loginForm" class="form" autocomplete="on">
+      <label>아이디<input id="uid" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label>비밀번호<input id="upw" name="password" type="password" autocomplete="current-password" required></label>
+      <button id="loginBtn" class="primary" type="submit">로그인</button>
+      <p id="authMsg" class="msg" role="alert"></p>
+    </form>
+  </div>
+</main>
+
+<!-- 대장 -->
+<main id="app" class="app" hidden>
+  <header class="top">
+    <div class="brand"><img src="bunny.png" alt="" width="34" height="34"><b>월급관리대장</b></div>
+    <div id="who" class="who"></div>
+    <button id="menuBtn" class="iconBtn" type="button" aria-label="설정"></button>
+  </header>
+  <div id="viewBanner" class="viewBanner" hidden></div>
+
+  <nav class="monthNav">
+    <button id="prevM" class="iconBtn" type="button" aria-label="지난달"></button>
+    <button id="mLabel" class="mLabel" type="button" title="이번 달로"></button>
+    <button id="nextM" class="iconBtn" type="button" aria-label="다음달"></button>
+  </nav>
+
+  <section class="sum">
+    <div class="sumMain"><span>남은 돈</span><b id="sBal"></b></div>
+    <div class="sumRow">
+      <div><span>받은 급여</span><b id="sIn"></b></div>
+      <div><span>지출 합계</span><b id="sOut"></b></div>
+    </div>
+    <div class="bar"><i id="sBar"></i></div>
+    <div id="sPaid" class="sumPaid"></div>
+  </section>
+
+  <div id="carry" class="carry" hidden></div>
+
+  <section class="box">
+    <div class="boxH"><h2>받은 급여</h2><button id="addIn" class="addBtn edit" type="button">+ 추가</button></div>
+    <div id="inList" class="list"></div>
+  </section>
+
+  <section class="box">
+    <div class="boxH"><h2>지출 내역</h2><button id="addOut" class="addBtn edit" type="button">+ 추가</button></div>
+    <div id="outList" class="list"></div>
+  </section>
+
+  <section class="box">
+    <div class="boxH"><h2>메모</h2></div>
+    <textarea id="memo" class="memo" rows="3" placeholder="이번 달에 기억할 것"></textarea>
+  </section>
+  <p id="syncState" class="syncState"></p>
+</main>
+
+<!-- 항목 편집 -->
+<div id="sheet" class="sheet" hidden>
+  <div class="sheetBg" data-close="1"></div>
+  <form id="edForm" class="sheetCard">
+    <div class="sheetH"><h3 id="edTitle"></h3><button class="iconBtn sm" type="button" data-close="1" aria-label="닫기">✕</button></div>
+    <div id="edCats" class="cats"></div>
+    <label>이름<input id="edName" maxlength="40" placeholder="예: 휴대폰 요금"></label>
+    <label>금액<div class="won"><input id="edAmt" inputmode="numeric" placeholder="0" autocomplete="off"><span>원</span></div></label>
+    <label id="edDayRow">납부일<div class="won"><input id="edDay" inputmode="numeric" maxlength="2" placeholder="예: 25"><span>일</span></div></label>
+    <label class="tgl"><input id="edRec" type="checkbox"><span>매달 같은 항목이에요 <small>다음 달에 자동으로 다시 들어가요</small></span></label>
+    <div class="sheetBtns">
+      <button id="edDel" class="ghost danger" type="button">삭제</button>
+      <button class="primary" type="submit">저장</button>
+    </div>
+  </form>
+</div>
+
+<!-- 설정 -->
+<div id="menu" class="sheet" hidden>
+  <div class="sheetBg" data-close="1"></div>
+  <div class="sheetCard">
+    <div class="sheetH"><h3>설정</h3><button class="iconBtn sm" type="button" data-close="1" aria-label="닫기">✕</button></div>
+    <div class="mSec">
+      <h4>언니에게 보여주기</h4>
+      <p class="small">링크를 보내면 언니는 로그인 없이 내역과 잔액을 <b>보기만</b> 할 수 있어요. 고칠 수는 없어요.</p>
+      <div id="shareBox"></div>
+    </div>
+    <div class="mSec">
+      <h4>백업</h4>
+      <p class="small">모든 기록은 서버에 저장되고, 고치기 전 내용도 자동으로 보관돼요. 파일로도 받아 둘 수 있어요.</p>
+      <button id="exportBtn" class="ghost" type="button">백업 파일 받기</button>
+    </div>
+    <div class="mSec">
+      <button id="logoutBtn" class="ghost" type="button">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>
