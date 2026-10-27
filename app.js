@@ -228,7 +228,7 @@
     const old = ed.id && list.find((x) => x.id === ed.id);
     if (old) Object.assign(old, v);
     else list.push({ id: uid(), ...v, ...(ed.k === 'out' ? { paid: false } : {}) });
-    closeSheets(); commit(); toast('저장했어요');
+    closeSheets(); commit(); hop($('sumBun'), '뾰잉! 저장했어');
   };
   $('edDel').onclick = () => {
     const list = ed.k === 'in' ? cur.income : cur.items;
@@ -245,10 +245,23 @@
   $('inList').onclick = (e) => { const r = e.target.closest('.row'); if (r) openEd('in', r.dataset.id); };
   $('outList').onclick = (e) => {
     const pay = e.target.closest('[data-pay]');
-    if (pay) { if (mode !== 'edit') return; const x = cur.items.find((v) => v.id === pay.dataset.pay); x.paid = !x.paid; commit(); if (x.paid) toast('"' + x.name + '" 납부 완료 ✓'); return; }
+    if (pay) { if (mode !== 'edit') return; const x = cur.items.find((v) => v.id === pay.dataset.pay); x.paid = !x.paid; commit();
+      if (x.paid) { const all = cur.items.every((v) => v.paid); hop($('sumBun'), all ? '이번 달 다 냈다! 🎉' : CHEERS[Math.floor(Math.random() * CHEERS.length)], all); }
+      return; }
     const r = e.target.closest('.row'); if (r) openEd('out', r.dataset.id);
   };
   let memoT;
+  // 말랑이 뾰잉
+  let bubT;
+  function hop(el, msg, big) {
+    el.classList.remove('boing', 'big'); void el.offsetWidth; el.classList.add(big ? 'big' : 'boing');
+    if (msg != null && el.id === 'sumBun') { const b = $('bubble'); b.textContent = msg; b.classList.add('show'); clearTimeout(bubT); bubT = setTimeout(() => b.classList.remove('show'), big ? 2600 : 1600); }
+  }
+  ['sumBun', 'logo'].forEach((id) => $(id).addEventListener('animationend', (e) => { if (e.target.tagName === 'IMG' && e.animationName === 'boing') $(id).classList.remove('boing', 'big'); }));
+  const CHEERS = ['뾰잉! 잘했어 🐰', '뾰잉뾰잉 ✓', '하나 끝! 💪', '착착 낸다 ✨', '최고야 💜'];
+  $('logo').onclick = () => hop($('logo'));
+  $('sumBun').style.pointerEvents = 'auto';
+  $('sumBun').onclick = () => hop($('sumBun'), ['뾰잉?', '돈 관리 화이팅!', '오늘도 아껴 쓰자 🐰', '말랑말랑 💜'][Math.floor(Math.random() * 4)]);
   $('memo').addEventListener('input', (e) => { if (mode !== 'edit') return; cur.memo = e.target.value; clearTimeout(memoT); memoT = setTimeout(commit, 500); });
   $('prevM').innerHTML = ICON.left; $('nextM').innerHTML = ICON.right; $('menuBtn').innerHTML = ICON.menu;
   $('prevM').onclick = () => { ym = shiftYm(ym, -1); openMonth(); render(); };

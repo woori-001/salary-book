@@ -22,7 +22,7 @@
 <!-- 로그인 -->
 <main id="auth" class="auth" hidden>
   <div class="authCard">
-    <img src="bunny.png" alt="" width="96" height="96" class="authBun">
+    <span class="authBunWrap"><img src="bunny.png" alt="" width="104" height="104" class="authBun"></span>
     <h1>월급관리대장</h1>
     <p class="sub">말랑메모 아이디로 로그인해요.<br>기록은 말랑메모와 따로 저장돼요.</p>
     <form id="loginForm" class="form" autocomplete="on">
@@ -37,7 +37,7 @@
 <!-- 대장 -->
 <main id="app" class="app" hidden>
   <header class="top">
-    <div class="brand"><img src="bunny.png" alt="" width="34" height="34"><b>월급관리대장</b></div>
+    <button id="logo" class="brand" type="button" aria-label="말랑이"><span class="logoBun"><img src="bunny.png" alt="" width="40" height="40"></span><b class="logoTxt">월급<i>관리</i>대장</b></button>
     <div id="who" class="who"></div>
     <button id="menuBtn" class="iconBtn" type="button" aria-label="설정"></button>
   </header>
@@ -50,6 +50,7 @@
   </nav>
 
   <section class="sum">
+    <div id="sumBun" class="sumBun"><span id="bubble" class="bubble"></span><img src="bunny.png" alt="" width="58" height="58"></div>
     <div class="sumMain"><span>남은 돈</span><b id="sBal"></b></div>
     <div class="sumRow">
       <div><span>받은 급여</span><b id="sIn"></b></div>
