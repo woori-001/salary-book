@@ -188,6 +188,7 @@
     renderTabs();
     $('ovView').hidden = tab !== 'all'; $('pView').hidden = tab === 'all';
     if (tab === 'all') renderOverview();
+    { const k = window.M.SKINS[prefs.skin] || {}; const want = 'stk/' + (k.draw || k.paper ? 'stkd-sparks' : 'stk3-sparks-mix') + '.png'; if (!$('sumSpark').src.endsWith(want)) $('sumSpark').src = want; }
     const share = utilShare(mon);
     const inSum = personIn(cur);
     const outSum = personOut(mon, cur);
@@ -234,9 +235,9 @@
 
   // ───────── 사람 탭 · 한눈에 보기 ─────────
   function renderTabs() {
-    $('ptabs').innerHTML = '<button type="button" data-tab="all" class="' + (tab === 'all' ? 'on' : '') + '">📊 한눈에</button>' +
+    $('ptabs').innerHTML = '<button type="button" data-tab="all" class="' + (tab === 'all' ? 'on' : '') + '">전체</button>' +
       mon.people.map((p) => '<button type="button" data-tab="' + esc(p.id) + '" class="' + (tab === p.id ? 'on' : '') + '">' + esc(p.name) + '</button>').join('') +
-      (mode === 'edit' ? '<button type="button" class="padd" data-tab="+" aria-label="사람 추가">＋</button>' : '');
+      (mode === 'edit' ? '<button type="button" class="padd" data-tab="+" aria-label="사람 추가" title="사람 추가">+</button>' : '');
   }
   $('ptabs').onclick = (e) => {
     const b = e.target.closest('[data-tab]'); if (!b) return;
@@ -261,6 +262,18 @@
   // 엑셀 표처럼: 항목 줄마다 사람별 금액, 아래에 비용 합계와 급여-비용
   function renderOverview() {
     const P = mon.people, share = utilShare(mon);
+    const draw = !!((window.M.SKINS[prefs.skin] || {}).draw || (window.M.SKINS[prefs.skin] || {}).paper);
+    const ST = (n) => 'stk/' + (draw ? 'stkd-' + ({ 'star-y': 'star', 'heart-p': 'heart', 'star-iris': 'star', 'heart-lav': 'heart', 'sparks-mix': 'sparks', memo: 'note', excl2: 'excl2', 'cloud-s': 'cloud', 'note-p': 'note' }[n] || 'spark') : 'stk3-' + n) + '.png';
+    const PSTK = ['star-y', 'heart-p', 'star-iris', 'heart-lav'];
+    // 맨 위: 사람마다 남은 돈 카드
+    $('ovHero').innerHTML = '<img class="heroBun" src="' + ((window.M.SKINS[prefs.skin] || {}).bunny && (window.M.SKINS[prefs.skin] || {}).bunny !== 'bunny.png' ? window.M.SKINS[prefs.skin].bunny : 'bunny.png') + '" alt="">' +
+      '<div class="heroGrid" style="--n:' + Math.min(P.length, 3) + '">' + P.map((p) => {
+        const i = personIn(p), o = personOut(mon, p), b = i - o, pct = i ? Math.min(100, o / i * 100) : (o ? 100 : 0);
+        return '<button type="button" class="pc" data-p="' + esc(p.id) + '"><img class="stk" src="' + ST(PSTK[P.indexOf(p) % PSTK.length]) + '" alt=""><span class="pcN">' + esc(p.name) + '</span>' +
+          '<span class="pcL">남은 돈</span><b class="pcB' + (b < 0 ? ' neg' : '') + '">' + (b < 0 ? '-' : '') + Math.abs(b).toLocaleString('ko-KR') + '<small>원</small>' + (b < 0 ? '<img class="stk warn" src="' + ST('excl2') + '" alt="">' : '') + '</b>' +
+          '<span class="pcBar"><i class="' + (o > i ? 'over' : '') + '" style="width:' + pct + '%"></i></span>' +
+          '<span class="pcS"><span>급여 ' + i.toLocaleString('ko-KR') + '</span><span>비용 ' + o.toLocaleString('ko-KR') + '</span></span></button>';
+      }).join('') + '</div><img class="stk heroSpark" src="' + ST('sparks-mix') + '" alt="">';
     const cell = (x) => x ? '<span class="ovA' + (x.paid ? ' paid' : '') + '" title="' + esc(x.name) + '">' + (x.paid ? '✓ ' : '') + x.amount.toLocaleString('ko-KR') + '<small>' + esc(x.name) + '</small></span>' : '<span class="ovA dash">-</span>';
     let body = '';
     for (const ct of CATS) {
@@ -277,10 +290,12 @@
     const outs = P.map((p) => personOut(mon, p));
     const foot = '<tfoot><tr class="ovSum"><th class="ovL">비용합계</th>' + outs.map((o) => '<td>' + o.toLocaleString('ko-KR') + '</td>').join('') + '</tr>' +
       '<tr class="ovBal"><th class="ovL">급여-비용</th>' + P.map((p, i) => { const b = personIn(p) - outs[i]; return '<td class="' + (b < 0 ? 'neg' : 'pos') + '">' + (b < 0 ? '- ' : '') + Math.abs(b).toLocaleString('ko-KR') + '</td>'; }).join('') + '</tr></tfoot>';
-    $('ovTable').innerHTML = '<table class="ov" style="--n:' + P.length + '">' + head + '<tbody>' + body + '</tbody>' + foot + '</table>' +
+    $('ovTable').innerHTML = '<img class="stk ovMemo" src="' + ST('memo') + '" alt=""><img class="stk ovNote" src="' + ST('note-p') + '" alt=""><div class="tw"><table class="ov" style="--n:' + P.length + '">' + head + '<tbody>' + body + '</tbody>' + foot + '</table></div>' +
       (mode === 'edit' ? '<p class="ovHint">이름을 누르면 그 사람 내역을 고칠 수 있어요</p>' : '');
+    $('uIco').src = ST('cloud-s');
     renderUtils();
   }
+  $('ovHero').onclick = (e) => { const c = e.target.closest('[data-p]'); if (!c) return; tab = c.dataset.p; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   $('ovTable').onclick = (e) => {
     if (e.target.closest('[data-util]')) { utilOpen = true; renderUtils(); $('utilHead').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     const c = e.target.closest('[data-p]'); if (!c) return;
@@ -458,7 +473,6 @@
     mode = 'edit'; db = load(dbKey(), { months: {}, dirty: {} });
     for (const k of Object.keys(db.months)) db.months[k] = clean(db.months[k]);
     $('auth').hidden = true; $('app').hidden = false; $('viewBanner').hidden = true;
-    $('who').textContent = session.username || '';
     openMonth(); render(); pullAll();
   }
   function startView() {
@@ -466,7 +480,6 @@
     db = { months: {}, dirty: {} };
     if (c) { for (const k of Object.keys(c.months || {})) db.months[k] = clean(c.months[k]); viewLabel = c.label || ''; }
     $('auth').hidden = true; $('app').hidden = false; $('viewBanner').hidden = false; setBanner();
-    $('who').textContent = '';
     openMonth(); render(); loadView();
   }
 

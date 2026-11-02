@@ -38,8 +38,12 @@
 <!-- 대장 -->
 <main id="app" class="app" hidden>
   <header class="top">
-    <button id="logo" class="brand" type="button" aria-label="말랑이"><span class="logoBun"><img src="bunny.png" data-bun="bunny.png" alt="" width="40" height="40"></span><b class="logoTxt">월급<i>관리</i>대장</b></button>
-    <div id="who" class="who"></div>
+    <button id="logo" class="brand" type="button" aria-label="말랑이"><span class="logoBun"><img src="bunny.png" data-bun="bunny.png" alt="" width="40" height="40"></span></button>
+    <nav class="monthNav">
+      <button id="prevM" class="iconBtn sm" type="button" aria-label="지난달"></button>
+      <button id="mLabel" class="mLabel" type="button" title="이번 달로"></button>
+      <button id="nextM" class="iconBtn sm" type="button" aria-label="다음달"></button>
+    </nav>
     <button id="menuBtn" class="iconBtn" type="button" aria-label="설정"></button>
   </header>
   <div id="install" class="install" hidden>
@@ -50,19 +54,14 @@
   </div>
   <div id="viewBanner" class="viewBanner" hidden></div>
 
-  <nav class="monthNav">
-    <button id="prevM" class="iconBtn" type="button" aria-label="지난달"></button>
-    <button id="mLabel" class="mLabel" type="button" title="이번 달로"></button>
-    <button id="nextM" class="iconBtn" type="button" aria-label="다음달"></button>
-  </nav>
-
   <div id="ptabs" class="ptabs" role="tablist"></div>
 
   <!-- 한눈에 보기: 사람별 한 표 -->
   <div id="ovView">
+    <section id="ovHero" class="ovHero"></section>
     <section class="ovCard"><div id="ovTable"></div></section>
     <section class="box utilBox">
-      <button id="utilHead" class="utilHead" type="button" aria-expanded="false"><h2>🏠 공과금</h2><span id="utilSum" class="utilSum"></span><span class="chev">▸</span></button>
+      <button id="utilHead" class="utilHead" type="button" aria-expanded="false"><img id="uIco" class="uIco" src="stk/stk3-cloud-s.png" alt=""><h2>공과금</h2><span id="utilSum" class="utilSum"></span><span class="chev">▸</span></button>
       <div id="utilBody" class="utilBody" hidden>
         <p class="small">여기 적은 금액을 모두 더해서 사람 수만큼 나눠 표의 '공과금'에 자동으로 들어가요.</p>
         <div id="utilList" class="utilList"></div>
@@ -74,6 +73,7 @@
 
   <div id="pView">
   <section class="sum">
+    <img id="sumSpark" class="stk sumSpark" src="stk/stk3-sparks-mix.png" alt="">
     <div id="sumBun" class="sumBun"><span id="bubble" class="bubble"></span><img src="bunny.png" data-bun="bunny.png" alt="" width="58" height="58"></div>
     <div class="sumMain"><span>남은 돈</span><b id="sBal"></b></div>
     <div class="sumRow">
