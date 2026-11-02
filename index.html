@@ -56,6 +56,23 @@
     <button id="nextM" class="iconBtn" type="button" aria-label="다음달"></button>
   </nav>
 
+  <div id="ptabs" class="ptabs" role="tablist"></div>
+
+  <!-- 한눈에 보기: 사람별 한 표 -->
+  <div id="ovView">
+    <section class="ovCard"><div id="ovTable"></div></section>
+    <section class="box utilBox">
+      <button id="utilHead" class="utilHead" type="button" aria-expanded="false"><h2>🏠 공과금</h2><span id="utilSum" class="utilSum"></span><span class="chev">▸</span></button>
+      <div id="utilBody" class="utilBody" hidden>
+        <p class="small">여기 적은 금액을 모두 더해서 사람 수만큼 나눠 표의 '공과금'에 자동으로 들어가요.</p>
+        <div id="utilList" class="utilList"></div>
+        <button id="utilAdd" class="addBtn edit" type="button">+ 항목 추가</button>
+        <label class="utilGuess edit">아직 금액을 모를 때 1인당 임시 금액<div class="won"><input id="utilGuess" inputmode="numeric" placeholder="150,000"><span>원</span></div></label>
+      </div>
+    </section>
+  </div>
+
+  <div id="pView">
   <section class="sum">
     <div id="sumBun" class="sumBun"><span id="bubble" class="bubble"></span><img src="bunny.png" data-bun="bunny.png" alt="" width="58" height="58"></div>
     <div class="sumMain"><span>남은 돈</span><b id="sBal"></b></div>
@@ -78,6 +95,8 @@
     <div class="boxH"><h2>지출 내역</h2><button id="addOut" class="addBtn edit" type="button">+ 추가</button></div>
     <div id="outList" class="list"></div>
   </section>
+
+  </div>
 
   <section class="box">
     <div class="boxH"><h2>메모</h2></div>

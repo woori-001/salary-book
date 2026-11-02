@@ -314,3 +314,59 @@ html.g-forest .logoTxt { background-image: linear-gradient(120deg, #6FB58E, #2F7
 html.g-peach .logoTxt { background-image: linear-gradient(120deg, #F59A8C, #E0607E); }
 html.g-lemon .logoTxt { background-image: linear-gradient(120deg, #F2C21B, #E0961A); }
 html.g-sky .logoTxt { background-image: linear-gradient(120deg, #7CC4F4, #2E7FD6); }
+
+/* ───────── 사람 탭 ───────── */
+.ptabs { display: flex; gap: 6px; margin: 0 0 12px; overflow-x: auto; scrollbar-width: none; }
+.ptabs::-webkit-scrollbar { display: none; }
+.ptabs button { flex: none; height: 38px; border: none; border-radius: 13px; padding: 0 16px; font-size: 14px; font-weight: 700; background: rgba(var(--glass), .6); color: var(--sub); }
+.ptabs button.on { background: var(--accent); color: var(--on, #fff); box-shadow: 0 6px 14px var(--glow); }
+.ptabs .padd { padding: 0 12px; font-size: 16px; }
+
+/* ───────── 한눈에 보기 표 ───────── */
+.ovCard { border-radius: 22px; padding: 10px 8px 8px; background: rgba(var(--glass), .78); box-shadow: 0 10px 26px rgba(80, 70, 160, .10); overflow-x: auto; }
+table.ov { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; table-layout: fixed; }
+table.ov th, table.ov td { padding: 5px 8px; font-size: 13.5px; }
+table.ov .ovL { width: 31%; text-align: center; font-weight: 700; color: var(--ink); font-size: 13px; line-height: 1.3; }
+table.ov .ovL small { display: block; font-size: 10.5px; color: var(--sub); font-weight: 600; }
+table.ov tbody th.ovL { vertical-align: middle; border-right: 1px solid rgba(110, 110, 170, .14); }
+table.ov thead th { padding: 8px 8px 9px; border-bottom: 1.5px solid rgba(110, 110, 170, .28); }
+table.ov thead .ovP { text-align: center; border-radius: 12px 12px 0 0; cursor: pointer; }
+table.ov thead .ovP:nth-child(2) { background: color-mix(in srgb, #8EB6F0 22%, transparent); }
+table.ov thead .ovP:nth-child(3) { background: color-mix(in srgb, #F2B48E 24%, transparent); }
+table.ov thead .ovP:nth-child(4) { background: color-mix(in srgb, #9FD8B5 24%, transparent); }
+table.ov thead .ovP span { display: block; font-size: 13px; color: var(--sub); font-weight: 700; }
+table.ov thead .ovP b { display: block; font-size: 15px; color: var(--ink); }
+table.ov tbody tr.gTop > * { border-top: 1px solid rgba(110, 110, 170, .14); }
+table.ov tbody td { text-align: right; cursor: pointer; }
+.ovA { display: block; font-weight: 600; color: var(--ink); line-height: 1.25; }
+.ovA small { display: block; font-size: 10px; font-weight: 500; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ovA.paid { color: var(--plus); }
+.ovA.dash { color: var(--sub); opacity: .6; }
+table.ov tfoot tr.ovSum > * { background: rgba(110, 110, 170, .1); font-weight: 800; border-top: 1.5px solid rgba(110, 110, 170, .28); }
+table.ov tfoot td { text-align: right; font-weight: 800; }
+table.ov tfoot tr.ovBal td.neg { color: var(--minus); }
+table.ov tfoot tr.ovBal td.pos { color: var(--plus); }
+.ovHint { text-align: center; font-size: 11.5px; color: var(--sub); margin: 8px 0 2px; }
+
+/* ───────── 공과금 (접어 두기) ───────── */
+.utilBox { padding: 0; overflow: hidden; }
+.utilHead { width: 100%; display: flex; align-items: center; gap: 8px; border: none; background: transparent; padding: 14px 16px; text-align: left; }
+.utilHead h2 { margin: 0; font-size: 16px; flex: none; }
+.utilSum { flex: 1; text-align: right; font-size: 12.5px; color: var(--sub); }
+.utilSum b { color: var(--ink); }
+.utilHead .chev { color: var(--sub); transition: transform .25s ease; }
+.utilHead[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.utilBody { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.utilBody .small { margin: 0 2px 2px; }
+.utilList { display: flex; flex-direction: column; gap: 6px; }
+.utilRow { display: flex; gap: 6px; align-items: center; }
+.utilRow .uN { flex: 1; min-width: 0; height: 40px; border: 1px solid rgba(110, 110, 170, .18); border-radius: 12px; padding: 0 10px; background: rgba(var(--glass), .9); font-size: 14px; outline: none; }
+.utilRow .won { flex: 1.1; } .utilRow .uA { width: 100%; height: 40px; border: 1px solid rgba(110, 110, 170, .18); border-radius: 12px; padding: 0 30px 0 10px; background: rgba(var(--glass), .9); font-size: 15px; font-weight: 700; text-align: right; outline: none; }
+.utilRow .won span { right: 10px; font-size: 13px; }
+.utilRow .uDel { width: 30px; height: 30px; flex: none; border: none; border-radius: 10px; background: transparent; color: var(--sub); }
+.utilGuess { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 4px; }
+.utilGuess input { width: 100%; height: 40px; border: 1px solid rgba(110, 110, 170, .18); border-radius: 12px; padding: 0 30px 0 10px; background: rgba(var(--glass), .9); font-size: 15px; font-weight: 700; text-align: right; outline: none; }
+.utilGuess .won span { right: 10px; }
+.row.util { width: 100%; }
+html.draw .ovCard, html.paper .ovCard { background: #fff; box-shadow: 0 0 0 1px var(--paper-line, rgba(0,0,0,.1)); }
+html.draw .ovCard { background: #FBFAF5; box-shadow: inset 0 0 0 2px #161616; }

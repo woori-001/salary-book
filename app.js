@@ -3,11 +3,13 @@
   'use strict';
   const SB = { url: 'https://omdyyvqkxxigilxjysbz.supabase.co', key: 'sb_publishable_g41wwhIMN19UchPheU9Vvg_lAHjnZNf', domain: 'mallang.invalid', iter: 310000 };
   const LS_SESSION = 'ledger.session.v1', LS_VIEW = 'ledger.view.v1', LS_VIEWCACHE = 'ledger.viewcache.v1';
+  // 표의 줄 순서대로 (공과금은 공과금 칸에서 나눠서 자동으로)
   const CATS = [
-    { id: 'phone', n: '통신비', e: '📱' }, { id: 'trans', n: '교통비', e: '🚌' }, { id: 'insure', n: '보험·적금', e: '🛡️' },
-    { id: 'loan', n: '대출 상환', e: '🏦' }, { id: 'food', n: '식비', e: '🍚' }, { id: 'card', n: '카드값', e: '💳' },
-    { id: 'allow', n: '용돈', e: '💝' }, { id: 'etc', n: '기타', e: '📦' }
+    { id: 'insure', n: '보험', e: '🛡️' }, { id: 'loanint', n: '보험대출이자', e: '📄' }, { id: 'loan', n: '대출(보험대출 제외)', e: '🏦' },
+    { id: 'save', n: '적금', e: '🐷' }, { id: 'phone', n: '폰요금', e: '📱' }, { id: 'card', n: '카드값', e: '💳' },
+    { id: 'trans', n: '교통비', e: '🚌' }, { id: 'food', n: '식비', e: '🍚' }, { id: 'allow', n: '용돈', e: '💝' }, { id: 'etc', n: '기타', e: '📦' }
   ];
+  const UTIL_DEFAULT = ['전기세', '수도세', '도시가스', '인터넷', '공기청정기', '정수기'];
   const catOf = (id) => CATS.find((c) => c.id === id) || CATS[CATS.length - 1];
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -62,7 +64,8 @@
   }
 
   // ───────── 데이터 ─────────
-  // months[ym] = { income:[{id,name,amount,rec}], items:[{id,cat,name,amount,day,rec,paid}], memo }
+  // months[ym] = { people:[{id,name,income:[{id,name,amount,rec}],items:[{id,cat,name,amount,day,rec,paid}]}], utils:[{id,name,amount}], utilGuess, memo }
+  // (예전 한 사람짜리 기록은 '언니'로 옮기고 앞에 '나'를 더함)
   let mode = 'edit';          // 'edit' | 'view'
   let db = { months: {}, dirty: {} };
   const dbKey = () => 'ledger.data.v1.' + (session && session.userId);
@@ -70,29 +73,56 @@
   const now = new Date();
   let ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
   const shiftYm = (k, d) => { const [y, m] = k.split('-').map(Number); const t = new Date(y, m - 1 + d, 1); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0'); };
-  const clean = (m) => ({
-    income: (Array.isArray(m && m.income) ? m.income : []).map((x) => ({ id: String(x.id || uid()), name: String(x.name || '').slice(0, 40), amount: num(x.amount), rec: !!x.rec })),
-    items: (Array.isArray(m && m.items) ? m.items : []).map((x) => ({ id: String(x.id || uid()), cat: catOf(x.cat).id, name: String(x.name || '').slice(0, 40), amount: num(x.amount), day: Math.min(31, num(x.day)) || 0, rec: !!x.rec, paid: !!x.paid })),
-    memo: String((m && m.memo) || '').slice(0, 2000)
+  const cleanIncome = (a) => (Array.isArray(a) ? a : []).map((x) => ({ id: String(x.id || uid()), name: String(x.name || '').slice(0, 40), amount: num(x.amount), rec: !!x.rec }));
+  const cleanItems = (a) => (Array.isArray(a) ? a : []).map((x) => {
+    let cat = x.cat;
+    if (cat === 'loan' && /보험/.test(x.name || '') && /이자/.test(x.name || '')) cat = 'loanint';   // 예전 '대출 상환'에 넣은 보험대출이자
+    return { id: String(x.id || uid()), cat: catOf(cat).id, name: String(x.name || '').slice(0, 40), amount: num(x.amount), day: Math.min(31, num(x.day)) || 0, rec: !!x.rec, paid: !!x.paid };
   });
+  const cleanPerson = (p, i) => ({ id: String((p && p.id) || 'p' + (i + 1)), name: String((p && p.name) || '사람' + (i + 1)).slice(0, 12), income: cleanIncome(p && p.income), items: cleanItems(p && p.items) });
+  const clean = (m) => {
+    m = m || {};
+    const people = Array.isArray(m.people) && m.people.length ? m.people.map(cleanPerson)
+      : [cleanPerson({ id: 'p2', name: '나', income: [{ name: '월급', amount: 0, rec: true }], items: [] }, 1), cleanPerson({ id: 'p1', name: '언니', income: m.income, items: m.items }, 0)];
+    return {
+      people,
+      utils: (Array.isArray(m.utils) ? m.utils : UTIL_DEFAULT.map((n) => ({ name: n }))).map((x) => ({ id: String(x.id || uid()), name: String(x.name || '').slice(0, 30), amount: num(x.amount) })),
+      utilGuess: m.utilGuess == null ? 150000 : num(m.utilGuess),
+      memo: String(m.memo || '').slice(0, 2000)
+    };
+  };
+  // 공과금 1인당: 적은 금액 합 ÷ 사람 수 (아직 하나도 안 적었으면 임시 금액)
+  const utilTotal = (m) => m.utils.reduce((a, x) => a + x.amount, 0);
+  const utilShare = (m) => { const t = utilTotal(m); return t ? Math.round(t / Math.max(1, m.people.length)) : m.utilGuess; };
+  const personOut = (m, p) => p.items.reduce((a, x) => a + x.amount, 0) + utilShare(m);
+  const personIn = (p) => p.income.reduce((a, x) => a + x.amount, 0);
   // 기록 없는 달: 바로 전에 기록된 달의 '매달' 항목을 미리 채워 보여줌 (고치면 그때 저장)
   function draftFor(k) {
     const prev = Object.keys(db.months).filter((x) => x < k).sort().pop();
-    if (!prev) return { m: { income: [{ id: uid(), name: '월급', amount: 0, rec: true }], items: [], memo: '' }, from: null };
+    if (!prev) return { m: clean({}), from: null };
     const p = db.months[prev];
     return {
-      m: { income: p.income.filter((x) => x.rec).map((x) => ({ ...x, id: uid() })), items: p.items.filter((x) => x.rec).map((x) => ({ ...x, id: uid(), paid: false })), memo: '' },
+      m: {
+        people: p.people.map((q) => ({ id: q.id, name: q.name, income: q.income.filter((x) => x.rec).map((x) => ({ ...x, id: uid() })), items: q.items.filter((x) => x.rec).map((x) => ({ ...x, id: uid(), paid: false })) })),
+        utils: p.utils.map((x) => ({ id: uid(), name: x.name, amount: 0 })), utilGuess: p.utilGuess, memo: ''
+      },
       from: prev
     };
   }
-  let cur = null, curDraft = null;
+  // mon = 이 달 전체, cur = 지금 보는 사람 (한눈에 보기일 땐 첫 사람)
+  let mon = null, cur = null, curDraft = null, tab = 'all';
+  function pickPerson() {
+    if (tab !== 'all' && !mon.people.some((p) => p.id === tab)) tab = 'all';
+    cur = mon.people.find((p) => p.id === tab) || mon.people[0];
+  }
   function openMonth() {
-    if (db.months[ym]) { cur = db.months[ym]; curDraft = null; }
-    else if (mode === 'edit') { const d = draftFor(ym); cur = d.m; curDraft = d.from || 'new'; }
-    else { cur = { income: [], items: [], memo: '' }; curDraft = 'none'; }
+    if (db.months[ym]) { mon = db.months[ym]; curDraft = null; }
+    else if (mode === 'edit') { const d = draftFor(ym); mon = d.m; curDraft = d.from || 'new'; }
+    else { mon = clean({}); mon.people.forEach((p) => { p.income = []; }); curDraft = 'none'; }
+    pickPerson();
   }
   function commit() {
-    db.months[ym] = cur; curDraft = null; db.dirty[ym] = true; persist(); render(); schedulePush();
+    db.months[ym] = mon; curDraft = null; db.dirty[ym] = true; persist(); render(); schedulePush();
   }
 
   // ───────── 동기화 ─────────
@@ -151,11 +181,16 @@
 
   // ───────── 화면 ─────────
   function render() {
-    if (!cur) openMonth();
+    if (!mon) openMonth();
+    pickPerson();
     const [y, m] = ym.split('-').map(Number);
     $('mLabel').innerHTML = y + '년 <b>' + m + '월</b>';
-    const inSum = cur.income.reduce((a, x) => a + x.amount, 0);
-    const outSum = cur.items.reduce((a, x) => a + x.amount, 0);
+    renderTabs();
+    $('ovView').hidden = tab !== 'all'; $('pView').hidden = tab === 'all';
+    if (tab === 'all') renderOverview();
+    const share = utilShare(mon);
+    const inSum = personIn(cur);
+    const outSum = personOut(mon, cur);
     const paidSum = cur.items.filter((x) => x.paid).reduce((a, x) => a + x.amount, 0);
     const bal = inSum - outSum;
     $('sBal').textContent = won(bal); $('sBal').classList.toggle('neg', bal < 0);
@@ -169,7 +204,7 @@
     // 지난달에서 가져온 안내
     const c = $('carry');
     if (mode === 'edit' && curDraft && curDraft !== 'new' && curDraft !== 'none') {
-      const n = cur.income.length + cur.items.length;
+      const n = mon.people.reduce((a, p) => a + p.income.length + p.items.length, 0);
       c.hidden = false; c.innerHTML = '🔁 ' + (+curDraft.split('-')[1]) + '월의 <b>매달 항목 ' + n + '개</b>를 미리 넣어 뒀어요. 고치거나 체크하면 저장돼요.';
     } else if (mode === 'view' && curDraft === 'none') { c.hidden = false; c.textContent = '이 달은 아직 기록이 없어요.'; }
     else c.hidden = true;
@@ -185,13 +220,100 @@
         '<button class="cb" type="button" data-pay="' + x.id + '" aria-pressed="' + x.paid + '" aria-label="' + (x.paid ? '납부 취소' : '납부 완료') + '">' + (x.paid ? ICON.check : '') + '</button>' +
         '<button class="rowMain" type="button"><span class="nm">' + esc(x.name || g.ct.n) + (x.rec ? '<em class="tag">매달</em>' : '') + (x.day ? '<em class="tag day">' + x.day + '일</em>' : '') + '</span>' +
         '<b class="amt">' + won(x.amount) + '</b></button></div>').join('') + '</div>').join('')
-      : '<p class="empty">통신비, 대출, 카드값 같은 지출을 추가해 주세요</p>';
+      : '<p class="empty">보험, 대출, 카드값 같은 지출을 추가해 주세요</p>';
+    // 공과금 (공과금 칸에서 나눠 자동으로 들어감)
+    $('outList').insertAdjacentHTML('beforeend', '<div class="grp"><div class="grpH"><span>🏠 공과금</span><span>' + won(share) + '</span></div>' +
+      '<button class="row out util" type="button" data-goutil="1"><span class="nm">공과금 1/' + mon.people.length + (utilTotal(mon) ? '' : '<em class="tag day">임시</em>') + '</span><b class="amt">' + won(share) + '</b></button></div>');
 
-    if (document.activeElement !== $('memo')) $('memo').value = cur.memo || '';
+    if (document.activeElement !== $('memo')) $('memo').value = mon.memo || '';
     $('memo').readOnly = mode === 'view';
     document.body.classList.toggle('viewMode', mode === 'view');
     setSync();
   }
+
+
+  // ───────── 사람 탭 · 한눈에 보기 ─────────
+  function renderTabs() {
+    $('ptabs').innerHTML = '<button type="button" data-tab="all" class="' + (tab === 'all' ? 'on' : '') + '">📊 한눈에</button>' +
+      mon.people.map((p) => '<button type="button" data-tab="' + esc(p.id) + '" class="' + (tab === p.id ? 'on' : '') + '">' + esc(p.name) + '</button>').join('') +
+      (mode === 'edit' ? '<button type="button" class="padd" data-tab="+" aria-label="사람 추가">＋</button>' : '');
+  }
+  $('ptabs').onclick = (e) => {
+    const b = e.target.closest('[data-tab]'); if (!b) return;
+    if (b.dataset.tab === '+') {
+      const n = (prompt('추가할 사람 이름 (예: 엄마)') || '').trim().slice(0, 12); if (!n) return;
+      const id = 'p' + uid(); mon.people.push({ id, name: n, income: [{ id: uid(), name: '월급', amount: 0, rec: true }], items: [] });
+      tab = id; commit(); return;
+    }
+    if (b.dataset.tab === tab && tab !== 'all' && mode === 'edit') { personMenu(); return; }   // 지금 탭을 한 번 더 누르면 이름 바꾸기·빼기
+    tab = b.dataset.tab; prefs.tab = tab; savePrefs(); render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  function personMenu() {
+    const n = prompt('이름 바꾸기 (비우고 확인하면 이 사람을 빼요)', cur.name);
+    if (n == null) return;
+    if (!n.trim()) {
+      if (mon.people.length <= 1) { toast('한 사람은 남아 있어야 해요'); return; }
+      if (!confirm('"' + cur.name + '"을(를) 이 달 표에서 뺄까요? 적어 둔 내역도 같이 빠져요.')) return;
+      mon.people = mon.people.filter((p) => p !== cur); tab = 'all';
+    } else cur.name = n.trim().slice(0, 12);
+    commit();
+  }
+  // 엑셀 표처럼: 항목 줄마다 사람별 금액, 아래에 비용 합계와 급여-비용
+  function renderOverview() {
+    const P = mon.people, share = utilShare(mon);
+    const cell = (x) => x ? '<span class="ovA' + (x.paid ? ' paid' : '') + '" title="' + esc(x.name) + '">' + (x.paid ? '✓ ' : '') + x.amount.toLocaleString('ko-KR') + '<small>' + esc(x.name) + '</small></span>' : '<span class="ovA dash">-</span>';
+    let body = '';
+    for (const ct of CATS) {
+      const cols = P.map((p) => p.items.filter((x) => x.cat === ct.id));
+      const n = Math.max(0, ...cols.map((c) => c.length));
+      if (!n) continue;
+      for (let r = 0; r < n; r++) {
+        body += '<tr class="' + (r === 0 ? 'gTop' : '') + '">' + (r === 0 ? '<th rowspan="' + n + '" class="ovL">' + ct.n + '</th>' : '') +
+          P.map((p, i) => '<td data-p="' + esc(p.id) + '">' + cell(cols[i][r]) + '</td>').join('') + '</tr>';
+      }
+    }
+    body += '<tr class="gTop"><th class="ovL">공과금' + (utilTotal(mon) ? '' : '<small>임시</small>') + '</th>' + P.map(() => '<td data-util="1"><span class="ovA">' + share.toLocaleString('ko-KR') + '</span></td>').join('') + '</tr>';
+    const head = '<thead><tr><th class="ovL">급여</th>' + P.map((p) => '<th class="ovP" data-p="' + esc(p.id) + '"><span>' + esc(p.name) + '</span><b>' + personIn(p).toLocaleString('ko-KR') + '</b></th>').join('') + '</tr></thead>';
+    const outs = P.map((p) => personOut(mon, p));
+    const foot = '<tfoot><tr class="ovSum"><th class="ovL">비용합계</th>' + outs.map((o) => '<td>' + o.toLocaleString('ko-KR') + '</td>').join('') + '</tr>' +
+      '<tr class="ovBal"><th class="ovL">급여-비용</th>' + P.map((p, i) => { const b = personIn(p) - outs[i]; return '<td class="' + (b < 0 ? 'neg' : 'pos') + '">' + (b < 0 ? '- ' : '') + Math.abs(b).toLocaleString('ko-KR') + '</td>'; }).join('') + '</tr></tfoot>';
+    $('ovTable').innerHTML = '<table class="ov" style="--n:' + P.length + '">' + head + '<tbody>' + body + '</tbody>' + foot + '</table>' +
+      (mode === 'edit' ? '<p class="ovHint">이름을 누르면 그 사람 내역을 고칠 수 있어요</p>' : '');
+    renderUtils();
+  }
+  $('ovTable').onclick = (e) => {
+    if (e.target.closest('[data-util]')) { utilOpen = true; renderUtils(); $('utilHead').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    const c = e.target.closest('[data-p]'); if (!c) return;
+    tab = c.dataset.p; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  // 공과금: 평소엔 접어 둠
+  let utilOpen = false, utilT = null;
+  function renderUtils() {
+    const t = utilTotal(mon);
+    $('utilSum').innerHTML = t ? '합계 <b>' + won(t) + '</b> · 1인당 <b>' + won(utilShare(mon)) + '</b>' : '1인당 <b>' + won(mon.utilGuess) + '</b> <small>(임시)</small>';
+    $('utilHead').setAttribute('aria-expanded', String(utilOpen)); $('utilBody').hidden = !utilOpen;
+    if (!utilOpen) return;
+    const ro = mode !== 'edit' ? ' readonly' : '';
+    if (!$('utilList').contains(document.activeElement)) {
+      $('utilList').innerHTML = mon.utils.map((x) => '<div class="utilRow" data-id="' + x.id + '"><input class="uN" value="' + esc(x.name) + '" maxlength="30"' + ro + '><div class="won"><input class="uA" inputmode="numeric" value="' + (x.amount ? x.amount.toLocaleString('ko-KR') : '') + '" placeholder="0"' + ro + '><span>원</span></div>' + (ro ? '' : '<button type="button" class="uDel" aria-label="빼기">✕</button>') + '</div>').join('');
+    }
+    if (document.activeElement !== $('utilGuess')) $('utilGuess').value = mon.utilGuess ? mon.utilGuess.toLocaleString('ko-KR') : '';
+    $('utilGuess').readOnly = mode !== 'edit';
+  }
+  $('utilHead').onclick = () => { utilOpen = !utilOpen; renderUtils(); };
+  const utilCommit = () => { clearTimeout(utilT); utilT = setTimeout(() => { commit(); }, 500); };
+  $('utilList').addEventListener('input', (e) => {
+    if (mode !== 'edit') return;
+    const row = e.target.closest('.utilRow'); const x = row && mon.utils.find((u) => u.id === row.dataset.id); if (!x) return;
+    if (e.target.classList.contains('uA')) { const n = num(e.target.value); e.target.value = n ? n.toLocaleString('ko-KR') : ''; x.amount = n; }
+    else x.name = e.target.value.slice(0, 30);
+    $('utilSum').innerHTML = '합계 <b>' + won(utilTotal(mon)) + '</b> · 1인당 <b>' + won(utilShare(mon)) + '</b>';
+    utilCommit();
+  });
+  $('utilList').addEventListener('focusout', () => setTimeout(() => { if (!$('utilList').contains(document.activeElement)) render(); }, 0));
+  $('utilList').addEventListener('click', (e) => { const b = e.target.closest('.uDel'); if (!b) return; const id = b.closest('.utilRow').dataset.id; mon.utils = mon.utils.filter((u) => u.id !== id); $('utilList').innerHTML = ''; commit(); });
+  $('utilAdd').onclick = () => { mon.utils.push({ id: uid(), name: '', amount: 0 }); $('utilList').innerHTML = ''; commit(); setTimeout(() => { const ins = $('utilList').querySelectorAll('.uN'); if (ins.length) ins[ins.length - 1].focus(); }, 30); };
+  $('utilGuess').addEventListener('input', (e) => { if (mode !== 'edit') return; const n = num(e.target.value); e.target.value = n ? n.toLocaleString('ko-KR') : ''; mon.utilGuess = n; utilCommit(); });
 
   // ───────── 편집 시트 ─────────
   let ed = null;   // { k: 'in'|'out', id|null, cat }
@@ -248,6 +370,7 @@
     if (pay) { if (mode !== 'edit') return; const x = cur.items.find((v) => v.id === pay.dataset.pay); x.paid = !x.paid; commit();
       if (x.paid) { const all = cur.items.every((v) => v.paid); hop($('sumBun'), all ? '이번 달 다 냈다! 🎉' : CHEERS[Math.floor(Math.random() * CHEERS.length)], all); }
       return; }
+    if (e.target.closest('[data-goutil]')) { tab = 'all'; utilOpen = true; render(); $('utilHead').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     const r = e.target.closest('.row'); if (r) openEd('out', r.dataset.id);
   };
   let memoT;
@@ -262,7 +385,7 @@
   $('logo').onclick = () => hop($('logo'));
   $('sumBun').style.pointerEvents = 'auto';
   $('sumBun').onclick = () => hop($('sumBun'), ['뾰잉?', '돈 관리 화이팅!', '오늘도 아껴 쓰자 🐰', '말랑말랑 💜'][Math.floor(Math.random() * 4)]);
-  $('memo').addEventListener('input', (e) => { if (mode !== 'edit') return; cur.memo = e.target.value; clearTimeout(memoT); memoT = setTimeout(commit, 500); });
+  $('memo').addEventListener('input', (e) => { if (mode !== 'edit') return; mon.memo = e.target.value; clearTimeout(memoT); memoT = setTimeout(commit, 500); });
   $('prevM').innerHTML = ICON.left; $('nextM').innerHTML = ICON.right; $('menuBtn').innerHTML = ICON.menu;
   $('prevM').onclick = () => { ym = shiftYm(ym, -1); openMonth(); render(); };
   $('nextM').onclick = () => { ym = shiftYm(ym, 1); openMonth(); render(); };
@@ -378,6 +501,7 @@
     hop($('logo'));
   };
   applySkin();
+  tab = prefs.tab || 'all';
 
   // ───────── 앱으로 설치 (말랑메모와 같은 방식) ─────────
   const ua = navigator.userAgent;
